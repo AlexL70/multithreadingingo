@@ -11,7 +11,7 @@ const (
 	screenWidth, screenHeight = 640, 360
 	boidCount                 = 500
 	viewRadius                = 15
-	adjRate                   = 0.015
+	adjRate                   = 0.001875
 )
 
 var (
@@ -48,7 +48,7 @@ func main() {
 	for i := 0; i < boidCount; i++ {
 		createBoid(i)
 	}
-	ebiten.SetWindowSize(screenWidth, screenHeight)
+	ebiten.SetWindowSize(screenWidth*2, screenHeight*2)
 	ebiten.SetWindowTitle("Boids in a box")
 	if err := ebiten.RunGame(&Game{}); err != nil {
 		log.Fatal(err)
