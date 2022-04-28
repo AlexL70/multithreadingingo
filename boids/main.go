@@ -3,6 +3,7 @@ package main
 import (
 	"image/color"
 	"log"
+	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -11,13 +12,14 @@ const (
 	screenWidth, screenHeight = 640, 360
 	boidCount                 = 500
 	viewRadius                = 15
-	adjRate                   = 0.001875
+	adjRate                   = 0.015
 )
 
 var (
 	green   = color.RGBA{R: 10, G: 255, B: 10, A: 255}
 	boids   [boidCount]*Boid
 	boidMap [screenWidth + 1][screenHeight + 1]int
+	lock    = sync.Mutex{}
 )
 
 type Game struct{}
