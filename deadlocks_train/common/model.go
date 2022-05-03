@@ -1,7 +1,5 @@
 package common
 
-import "sync"
-
 type Train struct {
 	Id          int
 	TrainLength int
@@ -10,7 +8,6 @@ type Train struct {
 
 type Intersection struct {
 	Id       int
-	Mutex    sync.Mutex
 	LockedBy int
 }
 
