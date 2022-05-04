@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"math/rand"
-	"sync"
 	"time"
 )
 
@@ -12,12 +11,11 @@ const (
 )
 
 var (
-	matrixA   = [matrixSize][matrixSize]int{}
-	matrixB   = [matrixSize][matrixSize]int{}
-	result    = [matrixSize][matrixSize]int{}
-	rwLock    = sync.RWMutex{}
-	cond      = sync.NewCond(rwLock.RLocker())
-	waitGroup = sync.WaitGroup{}
+	matrixA      = [matrixSize][matrixSize]int{}
+	matrixB      = [matrixSize][matrixSize]int{}
+	result       = [matrixSize][matrixSize]int{}
+	workStart    = NewBarrier(matrixSize + 1)
+	workComplete = NewBarrier(matrixSize + 1)
 )
 
 func generateRandomMatrix(matrix *[matrixSize][matrixSize]int) {
@@ -29,33 +27,28 @@ func generateRandomMatrix(matrix *[matrixSize][matrixSize]int) {
 }
 
 func workoutRow(row int) {
-	rwLock.RLock()
 	for {
-		waitGroup.Done()
-		cond.Wait()
+		workStart.Wait()
 		for column := 0; column < matrixSize; column++ {
 			for i := 0; i < matrixSize; i++ {
 				result[row][column] += matrixA[row][i] * matrixB[i][column]
 			}
 		}
+		workComplete.Wait()
 	}
 }
 
 func main() {
 	fmt.Println("Working...")
-	waitGroup.Add(matrixSize)
 	for row := 0; row < matrixSize; row++ {
 		go workoutRow(row)
 	}
 	start := time.Now()
 	for count := 0; count < 100; count++ {
-		waitGroup.Wait()
-		rwLock.Lock()
 		generateRandomMatrix(&matrixA)
 		generateRandomMatrix(&matrixB)
-		waitGroup.Add(matrixSize)
-		rwLock.Unlock()
-		cond.Broadcast()
+		workStart.Wait()
+		workComplete.Wait()
 	}
 	elapsed := time.Since(start)
 	fmt.Println("Done in", elapsed)
