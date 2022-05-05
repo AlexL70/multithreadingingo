@@ -2,20 +2,17 @@ package main
 
 import (
 	"fmt"
-	"sync"
+	"sync/atomic"
 	"time"
 )
 
 var (
-	money = 100
-	lock  = sync.Mutex{}
+	money int32 = 100
 )
 
 func stingy() {
 	for i := 1; i <= 1000; i++ {
-		lock.Lock()
-		money += 10
-		lock.Unlock()
+		atomic.AddInt32(&money, 10)
 		time.Sleep(1 * time.Millisecond)
 	}
 	fmt.Println("Stingy done.")
@@ -23,9 +20,7 @@ func stingy() {
 
 func spendy() {
 	for i := 1; i <= 1000; i++ {
-		lock.Lock()
-		money -= 10
-		lock.Unlock()
+		atomic.AddInt32(&money, -10)
 		time.Sleep(1 * time.Millisecond)
 	}
 	fmt.Println("Spendy done.")
